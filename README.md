@@ -1,12 +1,12 @@
----
-tagline: DynASM with Lua mode
----
+# DynASM for MiniNode
+# PRE ALPHA QUALITY! DOES NOT WORK YET!
 
-## `local dynasm = require'dynasm'`
+## `const dasm = require('dasm')`
 
-This is a modified version of [DynASM](http://luajit.org/dynasm.html) that allows generating,
-compiling, and running x86 and x86-64 assembly code directly from Lua. It also exposes the DynASM assembler
-and linker to be used as Lua modules.
+This is a modified version of [DynASM](http://luajit.org/dynasm.html) that 
+allows generating, compiling, and running x86 and x86-64 assembly code directly 
+from Javascript. It also exposes the DynASM assembler and linker to be used as 
+`mininode` modules.
 
 Jump To: [Examples](#examples) | [DynASM API](#dynasm-api) | [DASM API](#dasm-api) |
 			[Changes to DynASM](#changes-to-dynasm) |
@@ -15,8 +15,7 @@ Jump To: [Examples](#examples) | [DynASM API](#dynasm-api) | [DASM API](#dasm-ap
 
 ## Features
 
-  * translate, compile and run Lua/ASM code from Lua (no C glue)
-  * load Lua/ASM (.dasl) files with `require()`
+  * translate, compile and run Javascript/ASM code from Lua (no C glue)
   * works with file, string and stream inputs and outputs
 
 ## Before you start
@@ -24,27 +23,18 @@ Jump To: [Examples](#examples) | [DynASM API](#dynasm-api) | [DASM API](#dasm-ap
 1. DynASM is [not an inline assembler](http://www.corsix.org/content/what-is-dynasm), it's a code generator.
 	The following code:
 
-	~~~{.lua}
+	~~~{.javascript}
 	function codegen(Dst)
-		for i = 1, 3 do
-			| mov ax, i
-		end
-	end
+		for(var i = 1; i <= 3; i++) {
+      var instr = "mov ax, " + i;
+      Dst.asm(instr);
+    }
+	}
 	~~~
 
 	does _not_ run the assembly instruction 3 times when codegen is called, instead, it merely adds the
 	instruction sequence `mov ax, 1; mov ax, 2; mov ax, 3` to the dynasm state `Dst` when codegen is called.
 	Mixing Lua and ASM code like this has the effect of generating code, not running it.
-
-2. DynASM has two parts: the assembler/preprocessor, written in Lua, and the the linker/encoder, written in C.
-`dynasm.lua` is the preprocessor. It takes mixed C/ASM code as input (from a file, string or file-like object)
-and generates C code (to a file, string, or file-like object). Alternatively, it can take mixed Lua/ASM
-code (like the above example) and generate Lua code, which is what the "Lua mode" part is all about.
-`dasm.lua` is the binding to the C part of DynASM (the linker/encoder) which deals with building the code into
-executable memory that can be called into.
-
-3. `.dasl` files refer to Lua/ASM files, `.dasc` files refer to C/ASM files. dasl files can be used transparently
-as Lua modules (they are translated on-the-fly).
 
 ## Examples
 
